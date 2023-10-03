@@ -1,0 +1,178 @@
+{
+  "name": "high_number_of_dropped_mutations_on_cassandra_database",
+  "description": "This incident type refers to a situation where a high number of mutations are being dropped on a Cassandra database. Mutations are changes made to the database, such as inserting new data or updating existing data. When mutations are dropped, it means that they were not successfully recorded in the database. This can be caused by a variety of factors, such as hardware or network issues, configuration problems, or bugs in the software. When this occurs, it can result in data inconsistencies or loss, and can impact the performance and reliability of the application that relies on the database.",
+  "params": [
+    {
+      "name": "COLUMN_NAME",
+      "value": ""
+    },
+    {
+      "name": "TABLE_NAME",
+      "value": ""
+    },
+    {
+      "name": "NEW_NODE_COUNT",
+      "value": ""
+    },
+    {
+      "name": "NEW_REPLICATION_FACTOR",
+      "value": ""
+    },
+    {
+      "name": "VALUE",
+      "value": ""
+    },
+    {
+      "name": "CASSANDRA_CLUSTER",
+      "value": ""
+    },
+    {
+      "name": "CONSISTENCY_LEVEL",
+      "value": ""
+    },
+    {
+      "name": "KEYSPACE_NAME",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## High Number of Dropped Mutations on Cassandra Database\nThis incident type refers to a situation where a high number of mutations are being dropped on a Cassandra database. Mutations are changes made to the database, such as inserting new data or updating existing data. When mutations are dropped, it means that they were not successfully recorded in the database. This can be caused by a variety of factors, such as hardware or network issues, configuration problems, or bugs in the software. When this occurs, it can result in data inconsistencies or loss, and can impact the performance and reliability of the application that relies on the database."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of Cassandra service"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status cassandra`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Cassandra log for any errors or warnings"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `tail -n 100 /var/log/cassandra/system.log`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the number of dropped mutations"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `nodetool tpstats | grep Dropped`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of the Cassandra node"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `nodetool status`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the load on the Cassandra node"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `nodetool info | grep Load`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the disk space usage on the Cassandra node"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `df -h`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the network connectivity between the Cassandra nodes"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `nodetool describecluster`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the replication factor for the affected keyspace"
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `cqlsh -e \"describe keyspace ${KEYSPACE_NAME};\"`"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the consistency level of the affected queries"
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `cqlsh -e \"select * from ${TABLE_NAME} where ${COLUMN_NAME} = ${VALUE} consistency ${CONSISTENCY_LEVEL};\"`"
+    },
+    {
+      "name": "cell_20",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Increase the number of Cassandra nodes to handle the increased load and ensure that there is proper replication factor to avoid any data loss."
+    },
+    {
+      "name": "cell_21",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_change_cassandra_config()"
+    }
+  ]
+}
